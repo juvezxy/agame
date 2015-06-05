@@ -1,0 +1,64 @@
+﻿{% load staticfiles %}
+{% load mathjax %}
+
+{% mathjax_scripts %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'agame/style.css' %}" />
+<script type="text/javascript" src="{% static 'static_jquery/js/jquery.js' %}"> </script>
+
+
+<a id="question" position="relative">{{ question.question_text }}</a>
+
+<br />
+<canvas id="answer" height="100" style="border:1px solid #c3c3c3;">
+</canvas>
+
+
+
+<ul>
+{% for segment in segment_list %}
+    <li> <a id="segment" style="position: relative"> ${{ segment.segment_text }}\enspace$ </a> </li>
+{% endfor %}
+</ul>
+
+<script>
+MathJax.Hub.Queue(function() {
+
+//var question_position = $( "#question" ).offset();
+var length = 0;
+
+$( "li a#segment" ).each(function() {
+  length += $( this ).width();
+});
+$( "#answer" ).attr("width", length);
+
+var answer_position = $( "#answer").offset();
+var answer_top = answer_position.top;
+var answer_left = answer_position.left;
+
+
+$( "li a#segment" ).click(function() {
+  var seg = $( this );
+  var segment_position = seg.offset();
+  var segment_top = segment_position.top;
+  var segment_left = segment_position.left;
+  //var segment_width;
+  //setTimeout(function() {
+  var segment_width = seg.width();
+  //}, 0);
+
+  seg.animate({
+    //left: ("+=".concat(String(answer_left - segment_left))),
+    left: (answer_left - segment_left),
+    top: (answer_top - segment_top)
+  },
+  {
+    duration: 500,
+    complete: function () {},
+    start: function() {
+      answer_left += segment_width;
+    }
+  });
+});
+});
+</script>
