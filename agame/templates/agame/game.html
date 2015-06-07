@@ -16,14 +16,15 @@
 
 <ul id="sortable" class="connectedSortable">
 {% for segment in segment_list %}
-    <li id="{{ segment.index }}"> <a class="ui-widget-content"> ${{ segment.segment_text }}$ </a> </li>
+    <li id="{{ segment.index }}"> <a class="ui-widget-content"> ${{ segment.segment_text }}\enspace$ </a> </li>
 {% endfor %}
 </ul>
 
-<button>Next</button>
+<button class="ui-button">Next</button>
 
 <script>
 var segment_count = $( ".ui-widget-content" ).length;
+var is_last_question = {{ is_last_question|yesno:"true,false" }};
 
 $( "#snaptarget" ).height($( "#sortable li" ).height());
 
@@ -33,9 +34,6 @@ $( "#sortable, #snaptarget" ).sortable({
 }).disableSelection();
 
 function isSorted(arr) {
-  if (arr.length != segment_count) {
-    return false;
-  }
   var len = arr.length - 1;
   for(var i = 0; i < len; ++i) {
     if(parseInt(arr[i]) > parseInt(arr[i+1])) {
@@ -46,8 +44,22 @@ function isSorted(arr) {
 }
 
 $( "button" ).click(function() {
-  if (isSorted($( "#snaptarget" ).sortable("toArray"))) {
+  var index_arr = $( "#snaptarget" ).sortable("toArray");
+
+  if (index_arr.length != segment_count) {
+    return;
+  }
+
+  if (isSorted(index_arr)) {
     alert("correct!");
+  } else {
+    alert("wrong!");
+  }
+
+  if (is_last_question) {
+    location.href = "{% url 'agame:results' %}";
+  } else {
+    location.href = "{% url 'agame:game' %}";
   }
 })
 

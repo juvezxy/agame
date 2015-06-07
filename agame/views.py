@@ -8,9 +8,11 @@ from django.utils import timezone
 from .models import Question, Segment
 # Create your views here.
 
-total_count = Question.objects.count()
+question_count = Question.objects.count()
 
 question_list = Question.objects.order_by('?')
+
+question_id = 0;
 
 '''class IndexView(generic.ListView):
     template_name = 'polls/index.html'
@@ -48,13 +50,16 @@ def index(request):
     context = {'latest_question_list': latest_question_list, 'formula' : formula,}
     return render(request, 'polls/index.html', context)
 
-def game(request, question_id):
-    question_id = int(question_id)
+def game(request):
+    #question_id = int(question_id)
+    global question_id
+    
     question = question_list[question_id]
     segment_list = question.segment_set.order_by('?')
-    is_last_question = (question_id + 1 == total_count)
-    context = {'question' : question, 'segment_list' : segment_list,
-               'is_last_quesiton' : is_last_question}
+    question_id += 1
+    is_last_question = (question_id == question_count)
+    context = {'question' : question, 'question_id' : question_id,
+               'segment_list' : segment_list, 'is_last_question' : is_last_question}
     return render(request, 'agame/game.html', context)
 
 '''
@@ -62,11 +67,11 @@ def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     return render(request, 'polls/detail.html', {'question': question})
     # return HttpResponse("You're looking at question %s." % question_id)
-
-def results(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, 'polls/results.html', {'question': question})
 '''
+def results(request):
+    global question_id
+    question_id = 0
+    return render(request, 'agame/results.html', {})
 
 def vote(request, question_id):
     p = get_object_or_404(Question, pk=question_id)
