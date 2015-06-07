@@ -5,60 +5,64 @@
 
 <link rel="stylesheet" type="text/css" href="{% static 'agame/style.css' %}" />
 <script type="text/javascript" src="{% static 'static_jquery/js/jquery.js' %}"> </script>
+<link rel="stylesheet" type="text/css" href="{% static 'jquery-ui-1.11.4/jquery-ui.min.css' %}" />
+<script type="text/javascript" src="{% static 'jquery-ui-1.11.4/jquery-ui.min.js' %}"> </script>
+
 
 
 <a id="question" position="relative">{{ question.question_text }}</a>
+<ul id="snaptarget" class="ui-widget-header connectedSortable">
+</ul>
 
-<br />
-<canvas id="answer" height="100" style="border:1px solid #c3c3c3;">
-</canvas>
-
-
-
-<ul>
+<ul id="sortable" class="connectedSortable">
 {% for segment in segment_list %}
-    <li> <a id="segment" style="position: relative"> ${{ segment.segment_text }}\enspace$ </a> </li>
+    <li id="{{ segment.index }}"> <a class="ui-widget-content"> ${{ segment.segment_text }}$ </a> </li>
 {% endfor %}
 </ul>
 
+<button>Next</button>
+
 <script>
-MathJax.Hub.Queue(function() {
+var segment_count = $( ".ui-widget-content" ).length;
 
-//var question_position = $( "#question" ).offset();
+$( "#snaptarget" ).height($( "#sortable li" ).height());
+
+
+$( "#sortable, #snaptarget" ).sortable({
+  connectWith: ".connectedSortable",
+}).disableSelection();
+
+function isSorted(arr) {
+  if (arr.length != segment_count) {
+    return false;
+  }
+  var len = arr.length - 1;
+  for(var i = 0; i < len; ++i) {
+    if(parseInt(arr[i]) > parseInt(arr[i+1])) {
+      return false;
+    }
+  }
+  return true;
+}
+
+$( "button" ).click(function() {
+  if (isSorted($( "#snaptarget" ).sortable("toArray"))) {
+    alert("correct!");
+  }
+})
+
+
+
+/*MathJax.Hub.Queue(function() {
 var length = 0;
-
-$( "li a#segment" ).each(function() {
+$( ".segment" ).each(function() {
   length += $( this ).width();
 });
-$( "#answer" ).attr("width", length);
+$( ".ui-widget-header" ).width(length);
+});*/
+//var question_position = $( "#question" ).offset();
 
-var answer_position = $( "#answer").offset();
-var answer_top = answer_position.top;
-var answer_left = answer_position.left;
+//MathJax.Hub.Queue(function() {
 
-
-$( "li a#segment" ).click(function() {
-  var seg = $( this );
-  var segment_position = seg.offset();
-  var segment_top = segment_position.top;
-  var segment_left = segment_position.left;
-  //var segment_width;
-  //setTimeout(function() {
-  var segment_width = seg.width();
-  //}, 0);
-
-  seg.animate({
-    //left: ("+=".concat(String(answer_left - segment_left))),
-    left: (answer_left - segment_left),
-    top: (answer_top - segment_top)
-  },
-  {
-    duration: 500,
-    complete: function () {},
-    start: function() {
-      answer_left += segment_width;
-    }
-  });
-});
-});
+//});
 </script>
