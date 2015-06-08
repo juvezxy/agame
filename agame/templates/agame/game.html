@@ -8,7 +8,15 @@
 <link rel="stylesheet" type="text/css" href="{% static 'jquery-ui-1.11.4/jquery-ui.min.css' %}" />
 <script type="text/javascript" src="{% static 'jquery-ui-1.11.4/jquery-ui.min.js' %}"> </script>
 
+<form style="display: hidden" action="{% url 'agame:game' %}" method="POST" id="form_game">
+  {% csrf_token %}
+  <input type="hidden" id="count_game" name="count" value=""/>
+</form>
 
+<form style="display: hidden" action="{% url 'agame:results' %}" method="POST" id="form_results">
+  {% csrf_token %}
+  <input type="hidden" id="count_results" name="count" value=""/>
+</form>
 
 <a id="question" position="relative">{{ question.question_text }}</a>
 <ul id="snaptarget" class="ui-widget-header connectedSortable">
@@ -50,18 +58,24 @@ $( "button" ).click(function() {
     return;
   }
 
-  if (isSorted(index_arr)) {
+  var sorted = isSorted(index_arr);
+  var count = {{ correct_count }};
+  if (sorted) {
+    count += 1;
     alert("correct!");
   } else {
     alert("wrong!");
   }
 
   if (is_last_question) {
-    location.href = "{% url 'agame:results' %}";
+    $( "#count_results" ).val(count);
+    $( "#form_results" ).submit();
   } else {
-    location.href = "{% url 'agame:game' %}";
+    $( "#count_game" ).val(count);
+    $( "#form_game" ).submit();
   }
-})
+});
+
 
 
 
