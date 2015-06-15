@@ -1,3 +1,20 @@
-﻿{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+﻿{% load staticfiles %}
 
-<div>Correct: {{ correct_count }} </div>
+<link rel="stylesheet" type="text/css" href="{% static 'agame/style.css' %}" />
+<script type="text/javascript" src="{% static 'static_jquery/js/jquery.js' %}"> </script>
+<link rel="stylesheet" type="text/css" href="{% static 'jquery-ui-1.11.4/jquery-ui.min.css' %}" />
+<script type="text/javascript" src="{% static 'jquery-ui-1.11.4/jquery-ui.min.js' %}"> </script>
+
+{% if error_message %}
+<p class="ui-widget-content"><strong>{{ error_message }}</strong></p>
+{% else %}
+<div class="ui-widget-content">Correct: {{ correct_count }} out of: {{ question_count }}</div>
+<br />
+<button>Start over?</button>
+
+<script>
+$( "button" ).button().click(function() {
+  location.href = "{% url 'agame:game' %}";
+});
+</script>
+{% endif %}

@@ -8,13 +8,20 @@ from django.utils import timezone
 from .models import Question, Segment
 # Create your views here.
 
-question_count = Question.objects.count()
+#question_count = Question.objects.count()
 
-question_list = Question.objects.order_by('?')
+
+#question_list = Question.objects.order_by('?')
+
+def init_session(session):
+    session['question_count'] = Question.objects.count()
+    session['question_list'] = list(Question.objects.order_by('?'))
+    session['question_id'] = 0
+    session['correct_count'] = 0
 
 #question_id = 0
 
-correct_count = 0
+#correct_count = 0
 
 '''class IndexView(generic.ListView):
     template_name = 'polls/index.html'
@@ -55,10 +62,9 @@ def index(request):
 def game(request):
     #global question_id
     try:
-        count = request.POST['count']
+        correct = request.POST['correct']
     except (KeyError):
-        correct_count = 0
-        question_id = 0
+        init_session(request.session)
         # Redisplay the question voting form.
         '''
         return render(request, 'polls/detail.html', {
@@ -67,20 +73,20 @@ def game(request):
         })
         '''
     else:
-        print count
-        correct_count = int(count)
+        correct = int(correct)
+        request.session['correct_count'] += correct
 
         # Always return an HttpResponseRedirect after successfully dealing
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         #return HttpResponseRedirect(reverse('agame:results', args=(p.id,)))
-    
-    question = question_list[question_id]
+ 
+    question = (request.session['question_list'])[request.session['question_id']]
     segment_list = question.segment_set.order_by('?')
-    question_id += 1
-    is_last_question = (question_id == question_count)
+    request.session['question_id'] += 1
+    is_last_question = (request.session['question_id'] == request.session['question_count'])
 
-    context = {'question' : question, 'question_id' : question_id, 'correct_count' : correct_count,
+    context = {'question' : question,
                'segment_list' : segment_list, 'is_last_question' : is_last_question}
     return render(request, 'agame/game.html', context)
 
@@ -91,16 +97,17 @@ def detail(request, question_id):
     # return HttpResponse("You're looking at question %s." % question_id)
 '''
 def results(request):
-    #global question_id
-    #question_id = 0
     try:
-        count = request.POST['count']
+        correct = request.POST['correct']
     except (KeyError):
         context = {'error_message' : "No result"}
         return render(request, 'agame/results.html', context);
     else:
-        correct_count = int(count)
-        context = {'correct_count' : correct_count}
+        correct = int(correct)
+        request.session['correct_count'] += correct
+        correct_count = request.session['correct_count']
+        question_count = request.session['question_count']
+        context = {'correct_count' : correct_count, 'question_count' : question_count}
         return render(request, 'agame/results.html', context)
 
 def vote(request, question_id):

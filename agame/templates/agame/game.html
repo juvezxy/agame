@@ -10,12 +10,12 @@
 
 <form style="display: hidden" action="{% url 'agame:game' %}" method="POST" id="form_game">
   {% csrf_token %}
-  <input type="hidden" id="count_game" name="count" value=""/>
+  <input type="hidden" id="count_game" name="correct" value=""/>
 </form>
 
 <form style="display: hidden" action="{% url 'agame:results' %}" method="POST" id="form_results">
   {% csrf_token %}
-  <input type="hidden" id="count_results" name="count" value=""/>
+  <input type="hidden" id="count_results" name="correct" value=""/>
 </form>
 
 <a id="question" position="relative">{{ question.question_text }}</a>
@@ -24,11 +24,23 @@
 
 <ul id="sortable" class="connectedSortable">
 {% for segment in segment_list %}
-    <li id="{{ segment.index }}"> <a class="ui-widget-content"> ${{ segment.segment_text }}\enspace$ </a> </li>
+    <li id="{{ segment.index }}"> <a class="ui-widget-content segment"> ${{ segment.segment_text }}\enspace$ </a> </li>
 {% endfor %}
 </ul>
 
-<button class="ui-button">Next</button>
+<button>Next</button>
+
+<div id="warning" title="Warning" class="dialog">
+  <p>Please finish the question before clicking on "Next"</p>
+</div>
+
+<div id="correct" class="dialog">
+  <p>Correct!</p>
+</div>
+
+<div id="wrong" class="dialog">
+  <p>Wrong!</p>
+</div>
 
 <script>
 var segment_count = $( ".ui-widget-content" ).length;
@@ -36,6 +48,7 @@ var is_last_question = {{ is_last_question|yesno:"true,false" }};
 
 $( "#snaptarget" ).height($( "#sortable li" ).height());
 
+$( ".ui-widget-content" ).css("background-color", "transparent");
 
 $( "#sortable, #snaptarget" ).sortable({
   connectWith: ".connectedSortable",
@@ -51,29 +64,43 @@ function isSorted(arr) {
   return true;
 }
 
-$( "button" ).click(function() {
+$( "button" ).button().click(function() {
   var index_arr = $( "#snaptarget" ).sortable("toArray");
 
   if (index_arr.length != segment_count) {
+    $( "#warning" ).dialog();
     return;
   }
 
   var sorted = isSorted(index_arr);
-  var count = {{ correct_count }};
+  var correct;
   if (sorted) {
-    count += 1;
-    alert("correct!");
+    correct = 1;
+    $( "#correct" ).dialog({
+      closeOnEscape: false,
+      draggable: false,
+      dialogClass: "no-close"
+    });
   } else {
-    alert("wrong!");
+    correct = 0;
+    $( "#wrong" ).dialog({
+      closeOnEscape: false,
+      draggable: false,
+      dialogClass: "no-close"
+    });
   }
 
-  if (is_last_question) {
-    $( "#count_results" ).val(count);
-    $( "#form_results" ).submit();
-  } else {
-    $( "#count_game" ).val(count);
-    $( "#form_game" ).submit();
-  }
+  setTimeout(function() {
+    if (is_last_question) {
+      $( "#count_results" ).val(correct);
+      $( "#form_results" ).submit();
+      //location.href = "{% url 'agame:results' %}";
+    } else {
+      $( "#count_game" ).val(correct);
+      $( "#form_game" ).submit();
+    }
+  }, 1000);
+
 });
 
 

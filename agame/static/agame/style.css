@@ -6,16 +6,23 @@ body {
 */
 ul {
     list-style-type: none;
-    //margin: 0;
-    //padding: 0;
-}
-
-li {
-    //display: inline;
 }
 
 .connectedSortable li{
     font-size: 24pt;
     //float: left;
     display: inline-table;
+}
+
+.dialog {
+    display: none;
+}
+
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+
+.segment {
+  border: ridge !important;
+  background: transparent !important;
 }

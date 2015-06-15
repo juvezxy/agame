@@ -120,3 +120,4 @@ MATHJAX_CONFIG_DATA = {
   }
 }
 # STATIC_ROOT = '/var/www/example.com/static/'
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
